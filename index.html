@@ -1,147 +1,355 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>موقع تحويش شهر 7</title>
-  <style>
-    body {
-      font-family: 'Cairo', sans-serif;
-      background-color: #f0f4f8;
-      color: #333;
-      text-align: center;
-      padding: 20px;
-      position: relative;
-      overflow-x: hidden;
-    }
-    h1 {
-      color: #0a9396;
-    }
-    table {
-      width: 100%;
-      max-width: 500px;
-      margin: 20px auto;
-      border-collapse: collapse;
-      background-color: #fff;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-    }
-    th {
-      background-color: #94d2bd;
-    }
-    .progress {
-      width: 100%;
-      max-width: 500px;
-      height: 20px;
-      background-color: #ddd;
-      margin: 20px auto;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background-color: #0a9396;
-      width: 0%;
-      transition: width 0.3s;
-    }
-    input[type="checkbox"] {
-      transform: scale(1.3);
-    }
-    .emoji {
-      font-size: 1.5rem;
-      display: none;
-    }
-    .floating-emoji {
-      position: fixed;
-      font-size: 2.5rem;
-      opacity: 0;
-      animation: floatInOut 1.5s ease-in-out;
-      z-index: 9999;
-      pointer-events: none;
-    }
-    @keyframes floatInOut {
-      0% {opacity: 0; transform: translateY(20px);}
-      30% {opacity: 1; transform: translateY(0);}
-      70% {opacity: 1; transform: translateY(0);}
-      100% {opacity: 0; transform: translateY(-20px);}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>موقع التحويش مع تسجيل دخول</title>
+<style>
+  body { font-family: 'Cairo', sans-serif; background:#eef; padding: 20px; }
+  .container { max-width: 520px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);}
+  input, select, button { width: 100%; margin: 10px 0; padding: 8px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; }
+  button { cursor: pointer; background: #00695c; color: white; border: none; }
+  button:hover { background: #004d40; }
+  .hidden { display: none !important; }
+  .link { color: #00695c; cursor: pointer; text-align: center; margin-top: 10px; user-select:none; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+  th { background-color: #00695c; color: white; }
+  .checkmark { color: green; font-weight: bold; font-size: 1.3em; user-select:none; cursor:pointer; }
+  .no-mark { color: #bbb; font-size: 1.3em; user-select:none; cursor:pointer; }
+  #logoutBtn { background-color: #c62828; margin-bottom: 20px; }
+  #logoutBtn:hover { background-color: #8e0000; }
+</style>
 </head>
 <body>
-  <h1>💰 موقع تحويش شهر 7 - هدفك 9300 جنيه</h1>
-  <div class="progress">
-    <div class="progress-bar" id="progress-bar"></div>
-  </div>
+
+<!-- تسجيل الدخول -->
+<div class="container" id="loginSection">
+  <h2>تسجيل الدخول</h2>
+  <form id="loginForm">
+    <input type="text" id="loginUsername" placeholder="اسم المستخدم" required autocomplete="username" />
+    <input type="password" id="loginPassword" placeholder="كلمة المرور" required autocomplete="current-password" />
+    <button type="submit">دخول</button>
+  </form>
+  <div class="link" id="toRegister">ليس لديك حساب؟ سجل هنا</div>
+</div>
+
+<!-- تسجيل حساب جديد -->
+<div class="container hidden" id="registerSection">
+  <h2>إنشاء حساب جديد</h2>
+  <form id="registerForm">
+    <input type="text" id="registerUsername" placeholder="اسم المستخدم" required autocomplete="username" />
+    <input type="password" id="registerPassword" placeholder="كلمة المرور" required autocomplete="new-password" />
+    <button type="submit">تسجيل</button>
+  </form>
+  <div class="link" id="toLogin">لديك حساب؟ سجل الدخول</div>
+</div>
+
+<!-- صفحة التحويش -->
+<div class="container hidden" id="dashboardSection">
+
+  <button id="logoutBtn">تسجيل خروج</button>
+
+  <h2>موقع التحويش</h2>
+
+  <label for="yearSelect">اختر السنة:</label>
+  <select id="yearSelect"></select>
+
+  <label for="monthSelect">اختر الشهر:</label>
+  <select id="monthSelect"></select>
+
+  <label for="dailyAmountInput">المبلغ اليومي (جنيه):</label>
+  <input type="number" id="dailyAmountInput" min="1" step="1" placeholder="حدد المبلغ اليومي" />
+
+  <button id="saveDailyAmountBtn">حفظ المبلغ الشهري</button>
+
   <table>
     <thead>
       <tr>
         <th>اليوم</th>
-        <th>تم التحويش؟</th>
-        <th>إجمالي حتى الآن</th>
+        <th>تم التحويش؟ (اضغط لتبديل)</th>
       </tr>
     </thead>
-    <tbody id="savings-table"></tbody>
-  </table>  <audio id="coin-sound" preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5d272ca58b.mp3?filename=coin-collect-45643.mp3" type="audio/mp3">
-  </audio>  <script>
-    const days = 31;
-    const dailyAmount = 300;
-    const table = document.getElementById("savings-table");
-    const progressBar = document.getElementById("progress-bar");
-    const coinSound = document.getElementById("coin-sound");
+    <tbody id="daysTableBody"></tbody>
+  </table>
+</div>
 
-    function updateProgress() {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      let checkedCount = 0;
-      checkboxes.forEach(chk => {
-        if (chk.checked) checkedCount++;
-      });
-      const percent = (checkedCount / days) * 100;
-      progressBar.style.width = percent + "%";
+<script>
+  // دوال المستخدمين والتخزين
+  function getUsers() {
+    const data = localStorage.getItem('users');
+    return data ? JSON.parse(data) : {};
+  }
+  function saveUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+  function hashPassword(pwd) {
+    return btoa(pwd);
+  }
 
-      checkboxes.forEach((chk, index) => {
-        const totalCell = document.getElementById("total-" + (index + 1));
-        const emoji = document.getElementById("emoji-" + (index + 1));
-        if (chk.checked) {
-          totalCell.textContent = ((index + 1) * dailyAmount) + " جنيه";
-          emoji.style.display = "inline";
-        } else {
-          totalCell.textContent = "-";
-          emoji.style.display = "none";
+  // عناصر HTML
+  const loginSection = document.getElementById('loginSection');
+  const registerSection = document.getElementById('registerSection');
+  const dashboardSection = document.getElementById('dashboardSection');
+
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+
+  const toRegister = document.getElementById('toRegister');
+  const toLogin = document.getElementById('toLogin');
+
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  const yearSelect = document.getElementById('yearSelect');
+  const monthSelect = document.getElementById('monthSelect');
+  const dailyAmountInput = document.getElementById('dailyAmountInput');
+  const saveDailyAmountBtn = document.getElementById('saveDailyAmountBtn');
+  const daysTableBody = document.getElementById('daysTableBody');
+
+  // بيانات ومتغيرات
+  let currentUser = null;
+  let savingsData = null;
+
+  const months = [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+  ];
+
+  const daysInMonth = {
+    'يناير': 31, 'فبراير': 28, 'مارس': 31, 'أبريل': 30,
+    'مايو': 31, 'يونيو': 30, 'يوليو': 31, 'أغسطس': 31,
+    'سبتمبر': 30, 'أكتوبر': 31, 'نوفمبر': 30, 'ديسمبر': 31
+  };
+
+  // تبديل بين التسجيل والدخول
+  toRegister.onclick = () => {
+    loginSection.classList.add('hidden');
+    registerSection.classList.remove('hidden');
+  };
+  toLogin.onclick = () => {
+    registerSection.classList.add('hidden');
+    loginSection.classList.remove('hidden');
+  };
+
+  // تهيئة قوائم السنة والشهر
+  function fillYearSelect() {
+    yearSelect.innerHTML = '';
+    for(let y = 2023; y <= 2030; y++) {
+      const option = document.createElement('option');
+      option.value = y;
+      option.textContent = y;
+      yearSelect.appendChild(option);
+    }
+  }
+
+  function fillMonthSelect() {
+    monthSelect.innerHTML = '';
+    months.forEach(m => {
+      const option = document.createElement('option');
+      option.value = m;
+      option.textContent = m;
+      monthSelect.appendChild(option);
+    });
+  }
+
+  // تحقق سنة كبيسة
+  function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  }
+
+  // تحميل بيانات المستخدم أو انشائها لو مش موجودة
+  function loadUserData(username) {
+    currentUser = username;
+    const users = getUsers();
+    if (!users[username].savingsData) {
+      users[username].savingsData = {};
+    }
+    savingsData = users[username].savingsData;
+  }
+
+  // حفظ بيانات المستخدم
+  function saveUserData() {
+    const users = getUsers();
+    users[currentUser].savingsData = savingsData;
+    saveUsers(users);
+  }
+
+  // تحديث الجدول
+  function updateDaysTable() {
+    daysTableBody.innerHTML = '';
+    if (!currentUser) return;
+    const year = yearSelect.value;
+    const month = monthSelect.value;
+    if (!year || !month) return;
+
+    // تصحيح أيام فبراير بالسنة الكبيسة
+    let daysCount = daysInMonth[month];
+    if (month === 'فبراير' && isLeapYear(parseInt(year))) daysCount = 29;
+
+    if (!savingsData[year]) savingsData[year] = {};
+    if (!savingsData[year][month]) {
+      savingsData[year][month] = { dailyAmount: 0, daysSaved: {} };
+    }
+
+    dailyAmountInput.value = savingsData[year][month].dailyAmount || '';
+
+    for(let day = 1; day <= daysCount; day++) {
+      const tr = document.createElement('tr');
+
+      const tdDay = document.createElement('td');
+      tdDay.textContent = day;
+      tr.appendChild(tdDay);
+
+      const tdCheck = document.createElement('td');
+      const isSaved = savingsData[year][month].daysSaved[day];
+      tdCheck.innerHTML = isSaved ? '<span class="checkmark">✓</span>' : '<span class="no-mark">–</span>';
+
+      tdCheck.onclick = () => {
+        if (savingsData[year][month].dailyAmount <= 0) {
+          alert('يرجى تحديد المبلغ اليومي أولاً');
+          return;
         }
-      });
+        if (savingsData[year][month].daysSaved[day]) {
+          delete savingsData[year][month].daysSaved[day];
+        } else {
+          savingsData[year][month].daysSaved[day] = true;
+        }
+        saveUserData();
+        updateDaysTable();
+      };
+
+      tr.appendChild(tdCheck);
+      daysTableBody.appendChild(tr);
+    }
+  }
+
+  // حفظ المبلغ اليومي
+  saveDailyAmountBtn.onclick = () => {
+    const year = yearSelect.value;
+    const month = monthSelect.value;
+    const amount = parseFloat(dailyAmountInput.value);
+    if (!year || !month) {
+      alert('يرجى اختيار السنة والشهر أولاً');
+      return;
+    }
+    if (!amount || amount <= 0) {
+      alert('يرجى إدخال مبلغ يومي صالح');
+      return;
+    }
+    if (!savingsData[year]) savingsData[year] = {};
+    if (!savingsData[year][month]) savingsData[year][month] = { dailyAmount: 0, daysSaved: {} };
+    savingsData[year][month].dailyAmount = amount;
+    saveUserData();
+    alert('تم حفظ المبلغ اليومي');
+    updateDaysTable();
+  };
+
+  // تسجيل خروج
+  logoutBtn.onclick = () => {
+    currentUser = null;
+    savingsData = null;
+    sessionStorage.removeItem('loggedInUser');
+    dashboardSection.classList.add('hidden');
+    loginSection.classList.remove('hidden');
+  };
+
+  // تسجيل دخول
+  const loginUsername = document.getElementById('loginUsername');
+  const loginPassword = document.getElementById('loginPassword');
+
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+
+    const users = getUsers();
+    if (!users[username] || users[username].password !== hashPassword(password)) {
+      alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+      return;
     }
 
-    function showFloatingEmojis() {
-      const positions = ["10%", "30%", "70%", "90%"]; // جوانب الشاشة
-      positions.forEach(pos => {
-        const emoji = document.createElement("div");
-        emoji.className = "floating-emoji";
-        emoji.textContent = "🎉👏";
-        emoji.style.left = pos;
-        emoji.style.top = "40%";
-        document.body.appendChild(emoji);
-        setTimeout(() => document.body.removeChild(emoji), 1500);
-      });
+    sessionStorage.setItem('loggedInUser', username);
+    loadUserData(username);
+
+    loginSection.classList.add('hidden');
+    registerSection.classList.add('hidden');
+    dashboardSection.classList.remove('hidden');
+
+    fillYearSelect();
+    fillMonthSelect();
+
+    yearSelect.value = new Date().getFullYear();
+    monthSelect.value = months[new Date().getMonth()];
+    updateDaysTable();
+
+    loginForm.reset();
+  });
+
+  // تسجيل حساب جديد
+  const registerUsername = document.getElementById('registerUsername');
+  const registerPassword = document.getElementById('registerPassword');
+
+  registerForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = registerUsername.value.trim();
+    const password = registerPassword.value;
+
+    if (!username || !password) {
+      alert('يرجى تعبئة جميع الحقول');
+      return;
     }
 
-    function handleClick(el, index) {
-      if (el.checked) {
-        if (coinSound && coinSound.play) coinSound.play();
-        showFloatingEmojis();
-      }
-      updateProgress();
+    const users = getUsers();
+    if (users.hasOwnProperty(username)) {
+      alert('اسم المستخدم موجود مسبقًا');
+      return;
     }
 
-    for (let i = 1; i <= days; i++) {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>يوم ${i} <span id="emoji-${i}" class="emoji">🎉👏</span></td>
-        <td><input type="checkbox" onchange="handleClick(this, ${i})"></td>
-        <td id="total-${i}">-</td>
-      `;
-      table.appendChild(row);
+    users[username] = {
+      password: hashPassword(password),
+      savingsData: {}
+    };
+
+    saveUsers(users);
+
+    alert('تم إنشاء الحساب بنجاح، يمكنك تسجيل الدخول الآن');
+
+    registerSection.classList.add('hidden');
+    loginSection.classList.remove('hidden');
+
+    registerForm.reset();
+  });
+
+  // عند تحميل الصفحة، إذا فيه مستخدم مسجل دخول يسترجع بياناته
+  window.addEventListener('load', () => {
+    const savedUser = sessionStorage.getItem('loggedInUser');
+    if (savedUser) {
+      loadUserData(savedUser);
+      loginSection.classList.add('hidden');
+      registerSection.classList.add('hidden');
+      dashboardSection.classList.remove('hidden');
+
+      fillYearSelect();
+      fillMonthSelect();
+
+      yearSelect.value = new Date().getFullYear();
+      monthSelect.value = months[new Date().getMonth()];
+      updateDaysTable();
+    } else {
+      fillYearSelect();
+      fillMonthSelect();
     }
-  </script></body>
+  });
+
+  // تحديث الجدول عند تغيير السنة أو الشهر
+  yearSelect.onchange = updateDaysTable;
+  monthSelect.onchange = updateDaysTable;
+
+  // دالة تجزئة كلمة المرور بطريقة بسيطة (Base64)
+  function hashPassword(pwd) {
+    return btoa(pwd);
+  }
+</script>
+
+</body>
 </html>
