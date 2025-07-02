@@ -50,6 +50,19 @@
       font-size: 1.5rem;
       display: none;
     }
+    #center-emoji {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
@@ -66,14 +79,22 @@
       </tr>
     </thead>
     <tbody id="savings-table"></tbody>
-  </table><audio id="coin-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5d272ca58b.mp3?filename=coin-collect-45643.mp3"></audio>
-
-  <script>
+  </table>  <div id="center-emoji">🎉👏</div>  <audio id="coin-sound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5d272ca58b.mp3?filename=coin-collect-45643.mp3" type="audio/mp3">
+  </audio>  <script>
     const days = 31;
     const dailyAmount = 300;
     const table = document.getElementById("savings-table");
     const progressBar = document.getElementById("progress-bar");
     const coinSound = document.getElementById("coin-sound");
+    const centerEmoji = document.getElementById("center-emoji");
+
+    function playEmojiAnimation() {
+      centerEmoji.style.display = "block";
+      setTimeout(() => {
+        centerEmoji.style.display = "none";
+      }, 1500);
+    }
 
     function updateProgress() {
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -101,10 +122,18 @@
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>يوم ${i} <span id="emoji-${i}" class="emoji">🎉👏</span></td>
-        <td><input type="checkbox" onchange="coinSound.play(); updateProgress()"></td>
+        <td><input type="checkbox" onchange="handleClick(this, ${i})"></td>
         <td id="total-${i}">-</td>
       `;
       table.appendChild(row);
+    }
+
+    function handleClick(el, index) {
+      if (el.checked) {
+        if (coinSound && coinSound.play) coinSound.play();
+        playEmojiAnimation();
+      }
+      updateProgress();
     }
   </script></body>
 </html>
