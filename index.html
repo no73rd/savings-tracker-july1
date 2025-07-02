@@ -10,6 +10,8 @@
       color: #333;
       text-align: center;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
     }
     h1 {
       color: #0a9396;
@@ -50,18 +52,19 @@
       font-size: 1.5rem;
       display: none;
     }
-    #center-emoji {
+    .floating-emoji {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 999;
+      font-size: 2.5rem;
+      opacity: 0;
+      animation: floatInOut 1.5s ease-in-out;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    @keyframes floatInOut {
+      0% {opacity: 0; transform: translateY(20px);}
+      30% {opacity: 1; transform: translateY(0);}
+      70% {opacity: 1; transform: translateY(0);}
+      100% {opacity: 0; transform: translateY(-20px);}
     }
   </style>
 </head>
@@ -79,7 +82,7 @@
       </tr>
     </thead>
     <tbody id="savings-table"></tbody>
-  </table>  <div id="center-emoji">🎉👏</div>  <audio id="coin-sound" preload="auto">
+  </table>  <audio id="coin-sound" preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5d272ca58b.mp3?filename=coin-collect-45643.mp3" type="audio/mp3">
   </audio>  <script>
     const days = 31;
@@ -87,14 +90,6 @@
     const table = document.getElementById("savings-table");
     const progressBar = document.getElementById("progress-bar");
     const coinSound = document.getElementById("coin-sound");
-    const centerEmoji = document.getElementById("center-emoji");
-
-    function playEmojiAnimation() {
-      centerEmoji.style.display = "block";
-      setTimeout(() => {
-        centerEmoji.style.display = "none";
-      }, 1500);
-    }
 
     function updateProgress() {
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -118,6 +113,27 @@
       });
     }
 
+    function showFloatingEmojis() {
+      const positions = ["10%", "30%", "70%", "90%"]; // جوانب الشاشة
+      positions.forEach(pos => {
+        const emoji = document.createElement("div");
+        emoji.className = "floating-emoji";
+        emoji.textContent = "🎉👏";
+        emoji.style.left = pos;
+        emoji.style.top = "40%";
+        document.body.appendChild(emoji);
+        setTimeout(() => document.body.removeChild(emoji), 1500);
+      });
+    }
+
+    function handleClick(el, index) {
+      if (el.checked) {
+        if (coinSound && coinSound.play) coinSound.play();
+        showFloatingEmojis();
+      }
+      updateProgress();
+    }
+
     for (let i = 1; i <= days; i++) {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -126,14 +142,6 @@
         <td id="total-${i}">-</td>
       `;
       table.appendChild(row);
-    }
-
-    function handleClick(el, index) {
-      if (el.checked) {
-        if (coinSound && coinSound.play) coinSound.play();
-        playEmojiAnimation();
-      }
-      updateProgress();
     }
   </script></body>
 </html>
